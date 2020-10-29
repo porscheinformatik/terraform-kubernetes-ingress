@@ -10,11 +10,6 @@ This Terraform module deploys a Kubernetes cluster on Azure using AKS (Azure Kub
 provider "kubectl" {
 }
 
-resource "azurerm_resource_group" "example" {
-  name     = "ask-resource-group"
-  location = "eastus"
-}
-
 module "ingress" {
   source                    = "porscheinformatik/kubernetes/ingress"
   letsencrypt_staging_email = "my.email@comany.com"
