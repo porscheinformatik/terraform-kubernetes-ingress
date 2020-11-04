@@ -1,21 +1,30 @@
-resource "kubectl_manifest" "contour" {
-  yaml_body = file("${path.module}/ingress/contour.yaml")
+resource "helm_release" "cert_manager" {
+  name             = "cert-manager"
+  namespace        = "cert-manager"
+  create_namespace = true
+  repository       = "https://charts.jetstack.io"
+  chart            = "cert-manager"
+  version          = "v1.0.4"
+  set {
+    name  = "installCRDs"
+    value = "true"
+  }
 }
 
-resource "kubectl_manifest" "cert_manager" {
-  yaml_body = file("${path.module}/ingress/cert-manager.yaml")
-}
-
-resource "kubectl_manifest" "letsencrypt_staging" {
-  yaml_body = templatefile("${path.module}/ingress/letsencrypt-staging.yaml", { email = var.letsencrypt_staging_email })
+resource "helm_release" "contour" {
+  name             = "contour"
+  chart            = "${path.module}/charts/contour"
+  namespace        = "projectcontour"
+  create_namespace = true
+  set {
+    name  = "letsencryptStagingEmail"
+    value = var.letsencrypt_staging_email
+  }
+  set {
+    name  = "letsencryptProdEmail"
+    value = var.letsencrypt_prod_email
+  }
   depends_on = [
-    kubectl_manifest.cert_manager,
-  ]
-}
-
-resource "kubectl_manifest" "letsencrypt_prod" {
-  yaml_body = templatefile("${path.module}/ingress/letsencrypt-prod.yaml", { email = var.letsencrypt_prod_email })
-  depends_on = [
-    kubectl_manifest.cert_manager,
+    helm_release.cert_manager
   ]
 }
