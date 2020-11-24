@@ -4,7 +4,7 @@ resource "helm_release" "cert_manager" {
   create_namespace = true
   repository       = "https://charts.jetstack.io"
   chart            = "cert-manager"
-  version          = "v1.0.4"
+  version          = "v1.1.0"
   set {
     name  = "installCRDs"
     value = "true"
